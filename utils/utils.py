@@ -1,3 +1,15 @@
+import json
+import os
+import platform
+import re
+import time
+from pathlib import Path
+from typing import Optional, Tuple
+import subprocess as sp
+import yt_dlp
+
+URL_RE = re.compile(r"^(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+$")
+
 
 def is_android() -> bool:
     """Check if running on Android (Termux)."""

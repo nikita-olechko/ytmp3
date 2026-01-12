@@ -6,19 +6,21 @@ This script provides a programmatic interface to convert YouTube videos to MP3 o
 It extracts the core functionality from the ytconverter package for easy integration.
 """
 
-import json
-import os
-import platform
 import re
-import subprocess as sp
-import time
-from pathlib import Path
-from typing import List, Optional, Tuple
+
 from utils.utils import download_single_mp3
-import yt_dlp
 
 # Constants
-# URLS = []
+URLS = [
+    "https://www.youtube.com/watch?v=0RVeo79yfw0",
+     "https://www.youtube.com/watch?v=7vZHBKjo1GI", # necromancin
+    "https://www.youtube.com/watch?v=DjiFjXg39Us",
+    "https://www.youtube.com/watch?v=8bGEf6yvQbc&t=4s",
+    "https://www.youtube.com/watch?v=0QgM7lNgFnA",
+    "https://www.youtube.com/watch?v=Ce9_-Ffmzkg",
+    #
+
+]
 
 QUALITY = 256  # Bitrate for MP3 (e.g., 320, 256, 192, 128, 96). Can also use 'best' for best available quality.
 

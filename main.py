@@ -12,14 +12,12 @@ from utils.utils import download_single_mp3
 
 # Constants
 URLS = [
-    "https://www.youtube.com/watch?v=0RVeo79yfw0",
-     "https://www.youtube.com/watch?v=7vZHBKjo1GI", # necromancin
-    "https://www.youtube.com/watch?v=DjiFjXg39Us",
-    "https://www.youtube.com/watch?v=8bGEf6yvQbc&t=4s",
-    "https://www.youtube.com/watch?v=0QgM7lNgFnA",
-    "https://www.youtube.com/watch?v=Ce9_-Ffmzkg",
-    #
-
+    "https://www.youtube.com/watch?v=pFt-78nbNgI", # all dead all dead queen
+    "https://www.youtube.com/watch?v=Dvwbw3Dqozk", # karaoke
+    "https://www.youtube.com/watch?v=aZnXBJofUvA", # girl crush
+    "https://www.youtube.com/watch?v=c5dOCTE-uVE", # karaoke
+    "https://www.youtube.com/watch?v=NwlBxYyjrqM", # my shot
+    "https://www.youtube.com/watch?v=_vr5w9PefnM", # karaoke
 ]
 
 QUALITY = 256  # Bitrate for MP3 (e.g., 320, 256, 192, 128, 96). Can also use 'best' for best available quality.

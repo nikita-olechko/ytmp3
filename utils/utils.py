@@ -5,6 +5,7 @@ import subprocess as sp
 import time
 from pathlib import Path
 from typing import Optional, Tuple
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 import yt_dlp
 
 URL_RE = re.compile(r"^(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+$")
@@ -64,6 +65,21 @@ def sanitize_filename(name: str) -> str:
     return bad_chars.sub("", name)
 
 
+def normalize_youtube_url(url: str) -> str:
+    """Drop playlist parameters for watch URLs so single-video downloads do not stall."""
+    try:
+        parsed = urlsplit(url)
+        query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        if "v" in query and "list" in query:
+            query.pop("list", None)
+            query.pop("index", None)
+            query.pop("start_radio", None)
+            return urlunsplit((parsed.scheme, parsed.netloc, parsed.path, urlencode(query), parsed.fragment))
+    except Exception:
+        return url
+    return url
+
+
 def get_video_info(url: str) -> dict:
     """
     Get video information using yt-dlp.
@@ -78,7 +94,7 @@ def get_video_info(url: str) -> dict:
         Exception: If video info cannot be retrieved
     """
     try:
-        ydl_opts = {"quiet": True, "no_warnings": True}
+        ydl_opts = {"quiet": True, "no_warnings": True, "noplaylist": True}
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             return ydl.extract_info(url, download=False)
     except Exception as e:
@@ -177,6 +193,7 @@ def download_single_mp4(
         url: str,
         quality: str = "best",
         download_path: Optional[str] = None,
+        verbose: bool = True,
 ) -> Tuple[bool, str]:
     """
     Download a single video as MP4.
@@ -196,7 +213,8 @@ def download_single_mp4(
         return False, "FFmpeg not found. Please install FFmpeg to process video files."
 
     try:
-        info = get_video_info(url)
+        normalized_url = normalize_youtube_url(url)
+        info = get_video_info(normalized_url)
         title = sanitize_filename(info.get("title", "Unknown"))
 
         if download_path:
@@ -224,22 +242,59 @@ def download_single_mp4(
             "format": dl_format,
             "outtmpl": str(dest / f"{title}.%(ext)s"),
             "merge_output_format": "mp4",
-            "quiet": True,
+            "quiet": not verbose,
             "no_warnings": True,
             "noplaylist": True,
         }
 
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
+        if verbose:
+            print(f"Downloading: {title}")
 
-        # Always convert to H.264/AAC MP4 for broad playback compatibility.
-        candidates = sorted(dest.glob(f"{title}.*"), key=lambda p: p.stat().st_mtime, reverse=True)
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([normalized_url])
+
+        candidates = sorted(
+            [p for p in dest.glob(f"{title}.*") if p.suffix.lower() in {".mp4", ".mkv", ".webm", ".mov"}],
+            key=lambda p: p.stat().st_mtime,
+            reverse=True,
+        )
         if not candidates:
             return False, "Download failed: output file not found"
 
         source_file = candidates[0]
         target_file = dest / f"{title}.mp4"
         compat_file = dest / f"{title}.compat.mp4"
+
+        # Skip expensive re-encode if already H.264/AAC MP4.
+        ffprobe_out = sp.check_output(
+            [
+                "ffprobe",
+                "-v",
+                "error",
+                "-show_entries",
+                "stream=codec_type,codec_name",
+                "-of",
+                "csv=p=0",
+                str(source_file),
+            ],
+            text=True,
+        )
+        video_codec = ""
+        audio_codec = ""
+        for line in ffprobe_out.splitlines():
+            codec, stream_type = [part.strip() for part in line.split(",", 1)]
+            if stream_type == "video":
+                video_codec = codec
+            elif stream_type == "audio":
+                audio_codec = codec
+
+        if source_file.suffix.lower() == ".mp4" and video_codec == "h264" and audio_codec == "aac":
+            if source_file != target_file:
+                source_file.replace(target_file)
+            return True, f"Downloaded: {title}"
+
+        if verbose:
+            print("Converting to H.264/AAC MP4 for compatibility...")
 
         sp.run(
             [
@@ -256,7 +311,9 @@ def download_single_mp4(
                 str(compat_file),
             ],
             check=True,
-            capture_output=True,
+            stdout=sp.DEVNULL,
+            stderr=sp.DEVNULL,
+            timeout=3600,
         )
 
         if source_file != target_file and source_file.exists():

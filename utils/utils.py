@@ -174,3 +174,59 @@ def download_single_mp3(
             return False, "FFmpeg not found. Please install FFmpeg to convert audio files."
         return False, f"Download failed: {error_msg}"
 
+
+def download_single_mp4(
+        url: str,
+        quality: str = "best",
+        download_path: Optional[str] = None,
+) -> Tuple[bool, str]:
+    """
+    Download a single video as MP4.
+
+    Args:
+        url: YouTube URL
+        quality: Video quality ('best', '1080', '720', '480', '360')
+        download_path: Optional custom output path
+
+    Returns:
+        Tuple of (success, message)
+    """
+    if not URL_RE.match(url):
+        return False, "Invalid URL"
+
+    if not check_ffmpeg():
+        return False, "FFmpeg not found. Please install FFmpeg to process video files."
+
+    try:
+        info = get_video_info(url)
+        title = sanitize_filename(info.get("title", "Unknown"))
+
+        if download_path:
+            dest = Path(get_download_path("mp4", download_path))
+        else:
+            # Default MP4 output to the repo's video folder.
+            dest = Path(__file__).resolve().parent.parent / "video"
+            dest.mkdir(parents=True, exist_ok=True)
+
+        if quality == "best":
+            dl_format = "bestvideo+bestaudio/best"
+        else:
+            dl_format = f"bestvideo[height<={quality}]+bestaudio/best[height<={quality}]"
+
+        ydl_opts = {
+            "format": dl_format,
+            "outtmpl": str(dest / f"{title}.%(ext)s"),
+            "merge_output_format": "mp4",
+            "quiet": True,
+        }
+
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+
+        return True, f"Downloaded: {title}"
+
+    except Exception as e:
+        error_msg = str(e)
+        if "ffprobe and ffmpeg not found" in error_msg:
+            return False, "FFmpeg not found. Please install FFmpeg to process video files."
+        return False, f"Download failed: {error_msg}"

@@ -1,11 +1,10 @@
-import json
 import os
 import platform
 import re
+import subprocess as sp
 import time
 from pathlib import Path
 from typing import Optional, Tuple
-import subprocess as sp
 import yt_dlp
 
 URL_RE = re.compile(r"^(https?://)?(www\.)?(youtube\.com|youtu\.be)/.+$")
@@ -79,10 +78,9 @@ def get_video_info(url: str) -> dict:
         Exception: If video info cannot be retrieved
     """
     try:
-        info_json = json.loads(
-            sp.check_output(["yt-dlp", "-j", url], text=True, stderr=sp.DEVNULL)
-        )
-        return info_json
+        ydl_opts = {"quiet": True, "no_warnings": True}
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            return ydl.extract_info(url, download=False)
     except Exception as e:
         raise Exception(f"Failed to get video info: {e}")
 

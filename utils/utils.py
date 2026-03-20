@@ -207,19 +207,61 @@ def download_single_mp4(
             dest.mkdir(parents=True, exist_ok=True)
 
         if quality == "best":
-            dl_format = "bestvideo+bestaudio/best"
+            # Prefer AVC/H.264 video + AAC audio for maximum player compatibility.
+            dl_format = (
+                "bestvideo[vcodec^=avc1][ext=mp4]+bestaudio[acodec^=mp4a][ext=m4a]/"
+                "best[ext=mp4][vcodec^=avc1][acodec^=mp4a]/best[ext=mp4]/best"
+            )
         else:
-            dl_format = f"bestvideo[height<={quality}]+bestaudio/best[height<={quality}]"
+            dl_format = (
+                f"bestvideo[vcodec^=avc1][ext=mp4][height<={quality}]+"
+                f"bestaudio[acodec^=mp4a][ext=m4a]/"
+                f"best[ext=mp4][vcodec^=avc1][acodec^=mp4a][height<={quality}]/"
+                f"best[ext=mp4][height<={quality}]"
+            )
 
         ydl_opts = {
             "format": dl_format,
             "outtmpl": str(dest / f"{title}.%(ext)s"),
             "merge_output_format": "mp4",
             "quiet": True,
+            "no_warnings": True,
+            "noplaylist": True,
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
+
+        # Always convert to H.264/AAC MP4 for broad playback compatibility.
+        candidates = sorted(dest.glob(f"{title}.*"), key=lambda p: p.stat().st_mtime, reverse=True)
+        if not candidates:
+            return False, "Download failed: output file not found"
+
+        source_file = candidates[0]
+        target_file = dest / f"{title}.mp4"
+        compat_file = dest / f"{title}.compat.mp4"
+
+        sp.run(
+            [
+                "ffmpeg",
+                "-y",
+                "-i",
+                str(source_file),
+                "-c:v",
+                "libx264",
+                "-c:a",
+                "aac",
+                "-movflags",
+                "+faststart",
+                str(compat_file),
+            ],
+            check=True,
+            capture_output=True,
+        )
+
+        if source_file != target_file and source_file.exists():
+            source_file.unlink()
+        compat_file.replace(target_file)
 
         return True, f"Downloaded: {title}"
 

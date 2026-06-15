@@ -10,10 +10,10 @@ from utils.utils import download_single_mp4
 
 # Constants
 URLS = [
-    "https://www.youtube.com/watch?v=JwDcTPn2dvc&list=PLOXcoJa5jjNUkuAx8ACDDOINyXf7jtocS"
+    "https://www.youtube.com/watch?v=AARDtj6wL3U&t=2670s
 ]
 
-QUALITY = "best"  # Examples: "best", "1080", "720", "480", "360"
+QUALITY = "1080"  # Examples: "best", "1080", "720", "480", "360"
 
 
 def main() -> None:

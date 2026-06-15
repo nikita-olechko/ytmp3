@@ -12,12 +12,7 @@ from utils.utils import download_single_mp3
 
 # Constants
 URLS = [
-    "https://www.youtube.com/watch?v=pFt-78nbNgI", # all dead all dead queen
-    "https://www.youtube.com/watch?v=Dvwbw3Dqozk", # karaoke
-    "https://www.youtube.com/watch?v=aZnXBJofUvA", # girl crush
-    "https://www.youtube.com/watch?v=c5dOCTE-uVE", # karaoke
-    "https://www.youtube.com/watch?v=NwlBxYyjrqM", # my shot
-    "https://www.youtube.com/watch?v=_vr5w9PefnM", # karaoke
+    "https://www.youtube.com/watch?v=AARDtj6wL3U&t=2670s", # karaoke
 ]
 
 QUALITY = 256  # Bitrate for MP3 (e.g., 320, 256, 192, 128, 96). Can also use 'best' for best available quality.
@@ -36,8 +31,8 @@ def main():
     print("\nConverting to MP3...")
     for url in URLS:
         success, message = download_single_mp3(url, str(QUALITY),
-                            download_path=f"D:\\Nikita\\Documents\\personal\\projects\\ytmp3\\audio",
-                            verbose=True)
+                                               download_path="./audio",
+                                               verbose=True)
         status = "✓" if success else "✗"
         print(f"{status} {message}")
 

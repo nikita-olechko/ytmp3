@@ -1,9 +1,10 @@
 # Python dependencies
-yt-dlp>=2024.1.0
+yt-dlp[default]>=2024.1.0
+flask==3.1.2
+gunicorn==23.0.0
 
 # System dependency (not pip-installable):
 # ffmpeg - required for audio/video processing
 #   Windows : https://ffmpeg.org/download.html
 #   macOS   : brew install ffmpeg
 #   Linux   : sudo apt install ffmpeg
-

@@ -1,8 +1,6 @@
 services:
   ytmp3:
-    build:
-      context: https://github.com/nikita-olechko/ytmp3.git#main
-    image: ytmp3:latest
+    image: ghcr.io/nikita-olechko/ytmp3:latest
     container_name: ytmp3
     restart: unless-stopped
     ports:

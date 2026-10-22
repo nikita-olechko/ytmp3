@@ -4,6 +4,17 @@
   <h1>ytmp3</h1>
   <form method="post" action="{{ url_for('auth.logout') }}"><button class="link">Log out</button></form>
 </header>
+<form id="search" class="card">
+  <div class="row">
+    <input id="query" type="search" placeholder="Search YouTube" required>
+    <button type="submit" class="fit">Search</button>
+  </div>
+  <div id="search-meta" class="row meta" hidden>
+    <span id="search-status"></span>
+    <button type="button" id="copy-list" class="link">Copy list</button>
+  </div>
+  <ul id="results"></ul>
+</form>
 <form id="add" class="card">
   <textarea id="urls" rows="4" placeholder="Paste YouTube links, one per line" required></textarea>
   <div class="row">
@@ -13,7 +24,21 @@
     <button type="submit">Add &amp; download</button>
   </div>
 </form>
-<p class="hint">Links are processed one at a time; each file downloads as soon as it's ready. The first one may take a while while the server wakes up.</p>
+<p class="hint">Links are processed one at a time; each file downloads as soon as it's ready. The quality setting also applies to downloads from search.</p>
 <ul id="queue"></ul>
+<section class="card">
+  <strong>Claude access</strong>
+  <div class="row">
+    <select id="claude-ttl">
+      <option value="1">1 hour</option>
+      <option value="24" selected>1 day</option>
+      <option value="168">7 days</option>
+    </select>
+    <button type="button" id="claude-copy">Copy instructions for Claude</button>
+  </div>
+  <span id="claude-status" class="hint"></span>
+</section>
 <script src="{{ url_for('static', filename='queue.js') }}"></script>
+<script src="{{ url_for('static', filename='search.js') }}"></script>
+<script src="{{ url_for('static', filename='claude.js') }}"></script>
 {% endblock %}

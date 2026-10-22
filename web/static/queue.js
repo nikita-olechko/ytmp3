@@ -11,10 +11,10 @@ function render(item) {
   item.el.querySelector(".status").textContent = item.message;
 }
 
-function enqueue(url, quality) {
+function enqueue(url, quality, label = url) {
   const el = document.createElement("li");
   el.innerHTML = '<span class="url"></span><span class="status"></span>';
-  el.querySelector(".url").textContent = url;
+  el.querySelector(".url").textContent = label;
   list.prepend(el);
   const item = { url, quality, el, state: "pending", message: "Queued" };
   render(item);
@@ -77,3 +77,10 @@ form.addEventListener("submit", (e) => {
   urlsInput.value = "";
   drain();
 });
+
+window.ytQueue = {
+  add(url, label) {
+    enqueue(url, qualityInput.value, label);
+    drain();
+  },
+};

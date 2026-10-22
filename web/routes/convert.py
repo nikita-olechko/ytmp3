@@ -41,8 +41,9 @@ def convert():
         finally:
             result.cleanup()
 
+    ascii_name = filename.encode("ascii", "ignore").decode().replace('"', "") or "audio.mp3"
     headers = {
-        "Content-Disposition": f"attachment; filename*=UTF-8''{quote(filename)}",
+        "Content-Disposition": f"attachment; filename=\"{ascii_name}\"; filename*=UTF-8''{quote(filename)}",
         "X-Filename": quote(filename),
     }
     return Response(stream(), mimetype="audio/mpeg", headers=headers)

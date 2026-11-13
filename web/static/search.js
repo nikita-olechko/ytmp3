@@ -7,6 +7,14 @@ const copyListButton = document.getElementById("copy-list");
 
 let lastResults = [];
 
+function actionLabel() {
+  return window.ytQueue.target() === "library" ? "Add to library" : "Download";
+}
+
+window.ytQueue.onTargetChange(() => {
+  results.querySelectorAll(".dl:not(:disabled)").forEach((b) => (b.textContent = actionLabel()));
+});
+
 function formatDuration(seconds) {
   if (!seconds) return "";
   const m = Math.floor(seconds / 60);
@@ -33,6 +41,7 @@ function renderResult(r) {
       <button type="button" class="dl">Download</button>
       <button type="button" class="link copy">Copy link</button>
     </div>`;
+  li.querySelector(".dl").textContent = actionLabel();
   li.querySelector("img").src = r.thumbnail;
   const title = li.querySelector(".title");
   title.textContent = r.title;

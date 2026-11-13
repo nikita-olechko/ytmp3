@@ -72,4 +72,6 @@ button.fit { flex: 0 0 auto; }
 #results .dl:disabled { opacity: 0.6; cursor: default; }
 #results .copy { font-size: 12px; }
 #add { margin-top: 12px; }
+#add .row { flex-wrap: wrap; }
+#add .row select { flex: 0 1 auto; }
 section.card { margin-top: 16px; }

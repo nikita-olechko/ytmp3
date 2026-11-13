@@ -17,6 +17,13 @@ class ConvertedFile:
     path: Path
     title: str
     workdir: Path
+    artist: str = ""
+    track: str = ""
+
+    @property
+    def label(self) -> str:
+        """'Artist - Track' when YouTube knows the song, otherwise the video title."""
+        return f"{self.artist} - {self.track}" if self.artist and self.track else self.title
 
     def cleanup(self) -> None:
         shutil.rmtree(self.workdir, ignore_errors=True)
@@ -26,8 +33,11 @@ class ConversionError(Exception):
     pass
 
 
-def to_mp3(url: str, quality: str = "192") -> ConvertedFile:
-    """Downloads a single YouTube video's audio into a temp dir and converts it to MP3."""
+def to_mp3(url: str, quality: str = "192", embed_metadata: bool = False) -> ConvertedFile:
+    """Downloads a single YouTube video's audio into a temp dir and converts it to MP3.
+
+    With embed_metadata, title/artist/album tags from YouTube are written into the file.
+    """
     if not URL_RE.match(url):
         raise ConversionError("Not a YouTube URL")
     if quality not in QUALITIES:
@@ -45,6 +55,8 @@ def to_mp3(url: str, quality: str = "192") -> ConvertedFile:
             {"key": "FFmpegExtractAudio", "preferredcodec": "mp3", "preferredquality": quality},
         ],
     }
+    if embed_metadata:
+        opts["postprocessors"].append({"key": "FFmpegMetadata"})
     if os.path.exists(COOKIES_PATH):
         # yt-dlp rewrites its cookie file, and the mounted secret is read-only
         cookie_copy = workdir / "cookies.txt"
@@ -61,4 +73,10 @@ def to_mp3(url: str, quality: str = "192") -> ConvertedFile:
     if not mp3s:
         shutil.rmtree(workdir, ignore_errors=True)
         raise ConversionError("Conversion produced no file")
-    return ConvertedFile(path=mp3s[0], title=info.get("title") or "audio", workdir=workdir)
+    return ConvertedFile(
+        path=mp3s[0],
+        title=info.get("title") or "audio",
+        workdir=workdir,
+        artist=(info.get("artist") or "").split(",")[0].strip(),
+        track=info.get("track") or "",
+    )

@@ -1,0 +1,37 @@
+import os
+import re
+import shutil
+from pathlib import Path
+
+LIBRARY_DIR = os.environ.get("LIBRARY_DIR", "")
+
+
+class LibraryError(Exception):
+    pass
+
+
+def enabled() -> bool:
+    return bool(LIBRARY_DIR) and Path(LIBRARY_DIR).is_dir()
+
+
+def _safe_name(title: str) -> str:
+    name = re.sub(r'[\\/*?:"<>|\r\n]', " ", title)
+    return re.sub(r"\s+", " ", name).strip()[:180] or "audio"
+
+
+def _free_path(folder: Path, stem: str) -> Path:
+    path = folder / f"{stem}.mp3"
+    n = 2
+    while path.exists():
+        path = folder / f"{stem} ({n}).mp3"
+        n += 1
+    return path
+
+
+def save(source: Path, title: str) -> str:
+    """Moves a converted MP3 into the music library and returns its file name."""
+    if not enabled():
+        raise LibraryError("Saving to the library is not configured")
+    dest = _free_path(Path(LIBRARY_DIR), _safe_name(title))
+    shutil.move(str(source), dest)
+    return dest.name

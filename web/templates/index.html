@@ -21,10 +21,16 @@
     <select id="quality">
       {% for q in qualities %}<option value="{{ q }}" {% if q == '192' %}selected{% endif %}>{{ q }} kbps</option>{% endfor %}
     </select>
-    <button type="submit">Add &amp; download</button>
+    {% if library %}
+    <select id="target" aria-label="Save to">
+      <option value="device">This device</option>
+      <option value="library">NAS music library</option>
+    </select>
+    {% endif %}
+    <button type="submit" id="add-submit">Add &amp; download</button>
   </div>
 </form>
-<p class="hint">Links are processed one at a time; each file downloads as soon as it's ready. The quality setting also applies to downloads from search.</p>
+<p class="hint">Links are processed one at a time; each file {% if library %}downloads or saves to the library{% else %}downloads{% endif %} as soon as it's ready. The quality{% if library %} and destination{% endif %} settings also apply to search results.</p>
 <ul id="queue"></ul>
 <section class="card">
   <strong>Claude access</strong>

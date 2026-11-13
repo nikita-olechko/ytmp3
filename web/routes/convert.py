@@ -5,6 +5,7 @@ from flask import Blueprint, Response, jsonify, render_template, request
 
 from web.auth.guard import login_required
 from web.converter.youtube import QUALITIES, ConversionError, to_mp3
+from web.library.store import enabled as library_enabled
 
 convert_bp = Blueprint("convert", __name__)
 
@@ -18,7 +19,7 @@ def _safe_filename(title: str) -> str:
 @convert_bp.get("/")
 @login_required
 def index():
-    return render_template("index.html", qualities=QUALITIES)
+    return render_template("index.html", qualities=QUALITIES, library=library_enabled())
 
 
 @convert_bp.post("/api/convert")

@@ -33,5 +33,9 @@ def save(source: Path, title: str) -> str:
     if not enabled():
         raise LibraryError("Saving to the library is not configured")
     dest = _free_path(Path(LIBRARY_DIR), _safe_name(title))
-    shutil.move(str(source), dest)
+    partial = dest.with_name(f".{dest.name}.part")
+    # Plain copy: the library may sit on another filesystem whose ACLs reject copying permissions.
+    shutil.copyfile(source, partial)
+    os.replace(partial, dest)
+    source.unlink(missing_ok=True)
     return dest.name

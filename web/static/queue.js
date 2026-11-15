@@ -7,7 +7,7 @@ const urlsInput = document.getElementById("urls");
 const qualityInput = document.getElementById("quality");
 const targetInput = document.getElementById("target");
 const submitButton = document.getElementById("add-submit");
-const TARGET_KEY = "ytmp3.target";
+const TARGET_KEY = "ytmp3.target.v2";
 const targetListeners = [];
 
 function currentTarget() {
@@ -16,7 +16,6 @@ function currentTarget() {
 
 function applyTarget() {
   submitButton.textContent = currentTarget() === "library" ? "Add to library" : "Add & download";
-  try { localStorage.setItem(TARGET_KEY, currentTarget()); } catch {}
   targetListeners.forEach((fn) => fn(currentTarget()));
 }
 
@@ -25,7 +24,10 @@ if (targetInput) {
     const saved = localStorage.getItem(TARGET_KEY);
     if (saved) targetInput.value = saved;
   } catch {}
-  targetInput.addEventListener("change", applyTarget);
+  targetInput.addEventListener("change", () => {
+    try { localStorage.setItem(TARGET_KEY, currentTarget()); } catch {}
+    applyTarget();
+  });
   applyTarget();
 }
 

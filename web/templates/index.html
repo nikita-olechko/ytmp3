@@ -32,6 +32,19 @@
 </form>
 <p class="hint">Links are processed one at a time; each file {% if library %}downloads or saves to the library{% else %}downloads{% endif %} as soon as it's ready. The quality{% if library %} and destination{% endif %} settings also apply to search results.</p>
 <ul id="queue"></ul>
+{% if assistant %}
+<section class="card" id="assistant">
+  <div class="row meta">
+    <strong>Claude · {{ assistant_project }}</strong>
+    <span id="assistant-status"></span>
+  </div>
+  <div id="assistant-log" class="terminal" aria-live="polite"></div>
+  <form id="assistant-form" class="row">
+    <textarea id="assistant-input" rows="1" placeholder="Ask Claude to add an artist or album" required></textarea>
+    <button type="submit" id="assistant-send" class="fit">Send</button>
+  </form>
+</section>
+{% endif %}
 <section class="card">
   <strong>Claude access</strong>
   <div class="row">
@@ -47,4 +60,5 @@
 <script src="{{ url_for('static', filename='queue.js') }}"></script>
 <script src="{{ url_for('static', filename='search.js') }}"></script>
 <script src="{{ url_for('static', filename='claude.js') }}"></script>
+{% if assistant %}<script src="{{ url_for('static', filename='assistant.js') }}"></script>{% endif %}
 {% endblock %}

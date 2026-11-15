@@ -3,6 +3,8 @@ from urllib.parse import quote
 
 from flask import Blueprint, Response, jsonify, render_template, request
 
+from web.assistant.client import PROJECT as ASSISTANT_PROJECT
+from web.assistant.client import enabled as assistant_enabled
 from web.auth.guard import login_required
 from web.converter.youtube import QUALITIES, ConversionError, to_mp3
 from web.library.store import enabled as library_enabled
@@ -19,7 +21,13 @@ def _safe_filename(title: str) -> str:
 @convert_bp.get("/")
 @login_required
 def index():
-    return render_template("index.html", qualities=QUALITIES, library=library_enabled())
+    return render_template(
+        "index.html",
+        qualities=QUALITIES,
+        library=library_enabled(),
+        assistant=assistant_enabled(),
+        assistant_project=ASSISTANT_PROJECT,
+    )
 
 
 @convert_bp.post("/api/convert")

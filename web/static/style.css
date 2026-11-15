@@ -75,3 +75,11 @@ button.fit { flex: 0 0 auto; }
 #add .row { flex-wrap: wrap; }
 #add .row select { flex: 0 1 auto; }
 section.card { margin-top: 16px; }
+#assistant .terminal {
+  font: 13px/1.45 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px; height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+  display: flex; flex-direction: column; gap: 8px;
+}
+#assistant .line.user { color: var(--accent); }
+#assistant form textarea { flex: 1; min-width: 0; resize: none; }

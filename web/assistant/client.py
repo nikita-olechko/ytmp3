@@ -6,7 +6,7 @@ import urllib.request
 from urllib.parse import quote
 
 CONNECTOR_URL = os.environ.get("CONNECTOR_URL", "").rstrip("/")
-CONNECTOR_TOKEN = os.environ.get("CONNECTOR_TOKEN", "")
+CONNECTOR_TOKEN = os.environ.get("CONNECTOR_TOKEN", "").strip().lstrip("\ufeff")
 PROJECT = os.environ.get("ASSISTANT_PROJECT", "lidarr")
 TIMEOUT_S = 60
 

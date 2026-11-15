@@ -7,6 +7,15 @@ const POLL_MS = 4000;
 const HIDDEN_POLL_MS = 30000;
 
 let lastRendered = "";
+
+/** Parsed JSON body, or an error naming the HTTP status when the server sent something else. */
+async function readJson(res) {
+  try {
+    return await res.json();
+  } catch {
+    throw new Error(`Server error (${res.status})`);
+  }
+}
 let pollTimer = null;
 
 function nearBottom() {
@@ -37,7 +46,7 @@ async function refresh() {
   try {
     const res = await fetch("/api/assistant/conversation");
     if (res.status === 401) return (location.href = "/login");
-    const data = await res.json();
+    const data = await readJson(res);
     if (!res.ok) throw new Error(data.error || "Could not load the conversation");
     renderMessages(data.messages || []);
     assistantStatus.textContent = describe(data);
@@ -66,7 +75,7 @@ assistantForm.addEventListener("submit", async (event) => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message }),
     });
-    const data = await res.json();
+    const data = await readJson(res);
     if (!res.ok || data.ok === false) throw new Error(data.error || data.message || "Sending failed");
     assistantInput.value = "";
     assistantStatus.textContent = data.message;

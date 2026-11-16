@@ -4,6 +4,11 @@ from web.discover.http import ServiceError, request_json
 
 API = "https://ws.audioscrobbler.com/2.0/"
 API_KEY = os.environ.get("LASTFM_API_KEY", "")
+NOT_FOUND = 6
+
+
+class NotFound(ServiceError):
+    pass
 
 
 def enabled() -> bool:
@@ -13,7 +18,7 @@ def enabled() -> bool:
 def _call(method: str, **params) -> dict:
     data = request_json(API, {"method": method, "api_key": API_KEY, "format": "json", "autocorrect": 1, **params})
     if "error" in data:
-        raise ServiceError(f"Last.fm: {data.get('message', data['error'])}")
+        raise (NotFound if data["error"] == NOT_FOUND else ServiceError)(f"Last.fm: {data.get('message', data['error'])}")
     return data
 
 

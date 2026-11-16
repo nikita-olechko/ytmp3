@@ -18,7 +18,7 @@ async function api(path, body) {
     throw new Error("Not logged in");
   }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  if (!res.ok) throw new Error(data.error || `Server error (HTTP ${res.status}), try again`);
   return data;
 }
 

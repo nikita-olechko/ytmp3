@@ -13,6 +13,17 @@ from web.library.store import LibraryError
 discover_bp = Blueprint("discover", __name__)
 
 LOOKUP_THREADS = 8
+UPSTREAM_ERROR = 424  # not 502: Cloudflare replaces 502 replies with its own page
+
+
+def _similar_songs(artist: str, title: str, limit: int) -> list[dict]:
+    """Last.fm's similar songs, or none when there is no title or Last.fm doesn't know the song."""
+    if not title:
+        return []
+    try:
+        return lastfm.similar_tracks(artist, title, limit)
+    except lastfm.NotFound:
+        return []
 
 
 def _body() -> dict:
@@ -64,7 +75,7 @@ def now_playing():
     try:
         return jsonify(playing=navidrome.now_playing())
     except ServiceError as e:
-        return jsonify(error=str(e)), 502
+        return jsonify(error=str(e)), UPSTREAM_ERROR
 
 
 @discover_bp.get("/api/discover/similar")
@@ -77,12 +88,14 @@ def similar():
         return jsonify(error="Enter an artist"), 400
     limit = max(5, min(request.args.get("limit", 40, type=int), 100))
     try:
-        tracks = lastfm.similar_tracks(artist, title, limit) if title else []
+        tracks = _similar_songs(artist, title, limit)
         source = "similar songs"
         if not tracks:
             tracks, source = lastfm.similar_by_artist(artist), "top songs of similar artists"
+    except lastfm.NotFound:
+        return jsonify(error=f"Last.fm doesn't know the artist \"{artist}\""), 404
     except ServiceError as e:
-        return jsonify(error=str(e)), 502
+        return jsonify(error=str(e)), UPSTREAM_ERROR
     tracks = _dedupe(tracks, artist, title)[:limit]
     if navidrome.enabled():
         _mark_owned(tracks)

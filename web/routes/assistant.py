@@ -12,7 +12,7 @@ def _relay(call):
     try:
         return jsonify(call())
     except AssistantError as e:
-        return jsonify(error=str(e)), 502
+        return jsonify(error=str(e)), 424
 
 
 @assistant_bp.get("/api/assistant/conversation")

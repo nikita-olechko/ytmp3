@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<header>
+  <h1>Discover</h1>
+  <a class="link" href="{{ url_for('convert.index') }}">← ytmp3</a>
+</header>
+<form id="seed" class="card">
+  <strong>More like this song</strong>
+  <div class="row wrap">
+    <input id="seed-artist" placeholder="Artist" required>
+    <input id="seed-title" placeholder="Song (optional)">
+  </div>
+  <div class="row">
+    {% if now_playing %}<button type="button" id="playing" class="secondary">What's playing</button>{% endif %}
+    <button type="submit">Find similar</button>
+  </div>
+  <label class="hint"><input type="checkbox" id="hide-owned" checked> Hide songs already in the library</label>
+  <span id="seed-status" class="hint"></span>
+  <ul id="similar" class="tracks"></ul>
+</form>
+<p class="hint">"Get song" saves the best YouTube match to <code>music/Discovered</code>; Navidrome picks it up within minutes.{% if lidarr %} "Get album" marks the song's studio album as wanted in Lidarr, and soularr fetches it from Soulseek.{% endif %}</p>
+{% if weekly %}
+<section class="card" id="weekly">
+  <div class="row meta">
+    <strong>Weekly discoveries</strong>
+    <span id="weekly-status"></span>
+  </div>
+  <p class="hint">Explo replaces these every Tuesday. Keep the ones you like to move them to <code>music/Discovered</code>.</p>
+  <ul id="weekly-list" class="tracks"></ul>
+</section>
+{% endif %}
+<script>window.discoverFeatures = {{ {"lidarr": lidarr, "songs": songs} | tojson }};</script>
+<script src="{{ url_for('static', filename='discover.js') }}"></script>
+{% endblock %}

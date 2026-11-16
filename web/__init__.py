@@ -5,6 +5,7 @@ from flask import Flask
 from web.auth.routes import auth_bp
 from web.routes.assistant import assistant_bp
 from web.routes.convert import convert_bp
+from web.routes.discover import discover_bp
 from web.routes.library import library_bp
 from web.routes.search import search_bp
 from web.routes.tokens import tokens_bp
@@ -22,6 +23,7 @@ def create_app() -> Flask:
     app.register_blueprint(auth_bp)
     app.register_blueprint(assistant_bp)
     app.register_blueprint(convert_bp)
+    app.register_blueprint(discover_bp)
     app.register_blueprint(library_bp)
     app.register_blueprint(search_bp)
     app.register_blueprint(tokens_bp)

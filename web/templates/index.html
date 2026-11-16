@@ -2,7 +2,10 @@
 {% block content %}
 <header>
   <h1>ytmp3</h1>
-  <form method="post" action="{{ url_for('auth.logout') }}"><button class="link">Log out</button></form>
+  <div class="row">
+    <a class="link" href="{{ url_for('discover.page') }}">Discover</a>
+    <form method="post" action="{{ url_for('auth.logout') }}"><button class="link">Log out</button></form>
+  </div>
 </header>
 <form id="search" class="card">
   <div class="row">
